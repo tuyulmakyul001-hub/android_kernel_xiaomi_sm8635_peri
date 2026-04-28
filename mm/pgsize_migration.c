@@ -140,7 +140,22 @@ unsigned long vma_pad_pages(struct vm_area_struct *vma)
 	if (!is_pgsize_migration_enabled())
 		return 0;
 
-	return (vma->vm_flags & VM_PAD_MASK) >> VM_PAD_SHIFT;
+	nr_pad = (vma->vm_flags & VM_PAD_MASK) >> VM_PAD_SHIFT;
+	if (!nr_pad)
+		return 0;
+
+	nr_pages = vma_pages(vma);
+
+	/*
+	 * The number of padding pages should not exceed the total number of pages in
+	 * the VMA, but can be equal.
+	 *
+	 * See comment in split_pad_vma() for more details.
+	 */
+	if (WARN_ON(nr_pad > nr_pages))
+		return 0;
+
+	return nr_pad;
 }
 
 static __always_inline bool str_has_suffix(const char *str, const char *suffix)
