@@ -1663,6 +1663,7 @@ void folio_end_writeback(struct folio *folio)
 		BUG();
 
 	smp_mb__after_atomic();
+	trace_android_vh_folio_end_writeback(folio);
 	folio_wake(folio, PG_writeback);
 	acct_reclaim_writeback(folio);
 	folio_put(folio);
